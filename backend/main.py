@@ -2,9 +2,8 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, async_engine
-from routers import user_routes, game_routes
+from routers import user_routes, game_routes, review_routes
 
-# CORS setup
 origins = [
     "http://localhost:5173",
 ]
@@ -24,6 +23,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Routers
+
 app.include_router(user_routes.router)
 app.include_router(game_routes.router)
+app.include_router(review_routes.router)

@@ -22,22 +22,22 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db)
 ):
-    email = form_data.username
+    identifier = form_data.username
 
-    if not email or not form_data.password:
+    if not identifier or not form_data.password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email and password are required"
+            detail="Email/name and password are required"
         )
 
-    user_obj = await user_crud.authenticate_user(db, email, form_data.password)
+    user_obj = await user_crud.authenticate_user(db, identifier, form_data.password)
     if not user_obj:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Incorrect Email/Username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = auth.create_access_token(data={"sub": user_obj.email})
+    access_token = auth.create_access_token(data={"sub": str(user_obj.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 

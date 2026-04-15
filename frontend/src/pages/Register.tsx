@@ -9,7 +9,7 @@ export function Register() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Register - GameHub";
+    document.title = "Register | Backloggr";
   }, []);
 
   async function register(e: React.FormEvent) {
@@ -18,28 +18,37 @@ export function Register() {
     try {
       const response = await fetch("http://localhost:8000/users/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          username,
-          password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, username, password }),
       });
 
       if (!response.ok) {
-        const errData = await response.json();
+        const errData = await response.json().catch(() => ({}));
         throw new Error(errData.detail || "Registration failed. Please try again.");
       }
 
-      // Log automatically in after registration (later)
-      // const data = await response.json();
-      // localStorage.setItem("token", data.access_token);
+      const loginResponse = await fetch("http://localhost:8000/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username: email, password }),
+      });
 
-      navigate("/login");
+      if(!loginResponse.ok) {
+        const errData = await loginResponse.json().catch(() => ({}));
+        throw new Error(errData.detail || "Login failed after registration.");
+      }
+
+      const data = await loginResponse.json();
+
+      if (!data.access_token) {
+        throw new Error("Invalid login response.");
+      }
+
+      localStorage.setItem("token", data.access_token);
+      
+      navigate("/");
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Something went wrong");
     }
   }
 
@@ -49,59 +58,75 @@ export function Register() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black">
-      <form className="w-full max-w-md space-y-4" onSubmit={register}>
-        <h2 className="text-2xl font-bold mb-6 text-center text-white">
-          Create an Account
-        </h2>
+    <div className="min-h-screen bg-[#16181c] text-[#ffffff] font-medium">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="h-16 flex items-center">
+          <div className="text-2xl font-semibold">Backloggr</div>
+        </header>
+      </div>
 
-        {error && (
-          <p className="text-red-500 text-sm text-center">{error}</p>
-        )}
+      <div className="flex justify-center">
+        <div className="w-full max-w-xl mt-12 px-6">
+          <h1 className="text-[3rem] font-extralight text-[#8f9ca7] text-center mb-2">
+            Registration
+          </h1>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-4 py-2 border border-gray-700 rounded bg-black text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
-        />
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className="w-full px-4 py-2 border border-gray-700 rounded bg-black text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full px-4 py-2 border border-gray-700 rounded bg-black text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
-        />
+          <form onSubmit={register} className="space-y-4" aria-label="Registration form">
+            {error && (
+              <div className="text-center text-sm text-red-400 mb-2">{error}</div>
+            )}
 
-        <button
-          type="submit"
-          className="w-full bg-white text-black py-2 rounded hover:bg-gray-200 transition font-semibold"
-        >
-          Register
-        </button>
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-md bg-[#272c37] border border-[#3b414e] placeholder:text-[#c5d7e747] text-[#cbd4dc] text-sm focus:outline-none focus:border-[#839df9] focus:ring-1 focus:ring-[#839df9] transition-colors"
+            />
 
-        <p className="mt-4 text-sm text-center text-gray-400">
-          Already have an account?{" "}
-          <a
-            href="#"
-            onClick={goToLogin}
-            className="text-white hover:underline"
-          >
-            Login
-          </a>
-        </p>
-      </form>
+            <div>
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-md bg-[#272c37] border border-[#3b414e] placeholder:text-[#c5d7e747] text-[#cbd4dc] text-sm focus:outline-none focus:border-[#839df9] focus:ring-1 focus:ring-[#839df9] transition-colors"
+              />
+              <p className="mt-2 text-xs text-[#8f9ca7]">Maximum of 16 characters</p>
+            </div>
+
+            <div>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-md bg-[#272c37] border border-[#3b414e] placeholder:text-[#c5d7e747] text-[#cbd4dc] text-sm focus:outline-none focus:border-[#839df9] focus:ring-1 focus:ring-[#839df9] transition-colors"
+              />
+              <p className="mt-2 text-xs text-[#8f9ca7]">Minimum of 6 characters</p>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full mt-6 bg-[#00d58e] hover:bg-[#00e196] text-white py-3 rounded-md font-medium transition-colors"
+            >
+              Register
+            </button>
+
+            <div className="mt-2 w-full text-center">
+              <span
+                onClick={goToLogin}
+                className="inline-block w-full text-[#cbd4dc] font-medium cursor-pointer hover:text-white transition-colors"
+              >
+                Already have an account? Log in
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
