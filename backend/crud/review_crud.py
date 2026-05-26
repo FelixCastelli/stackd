@@ -3,10 +3,10 @@ from sqlalchemy.future import select
 import models.review_model as review_model
 from schemas.review_schema import ReviewCreate
 
-async def create_review(db: AsyncSession, user_id: int, review: ReviewCreate):
+async def create_review(db: AsyncSession, user_id: int, game_id: int, review: ReviewCreate):
     db_review = review_model.Review(
         user_id = user_id,
-        game_id = review.game_id,
+        game_id = game_id,
         rating = review.rating,
         body = review.body
     )

@@ -1,0 +1,92 @@
+@reference "tailwindcss";
+
+@layer components {
+  .navbar {
+    background: transparent;
+    border: none;
+    z-index: 15;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    min-height: 3.5rem;
+  }
+
+  .navbar-overlay {
+    position: absolute;
+    inset: 0 0 auto 0;
+  }
+
+  .navbar-container {
+    width: 100%;
+    padding-inline: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 576px) {
+    .navbar-container {
+      max-width: 540px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .navbar-container {
+      max-width: 720px;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .navbar-container {
+      max-width: 960px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .navbar-container {
+      max-width: 1140px;
+    }
+  }
+
+  .navbar-brand {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  .navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .navbar-link,
+  .navbar-text-button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--back-link);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .navbar-link:hover,
+  .navbar-text-button:hover,
+  .navbar-link-primary:hover {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .navbar-link-primary {
+    font-weight: 600;
+  }
+}

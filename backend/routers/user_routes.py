@@ -18,23 +18,20 @@ async def get_users(db: AsyncSession = Depends(get_db)):
     return await user_crud.get_users(db)
 
 @router.post("/login", response_model=Token)
-async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db)
-):
-    identifier = form_data.username
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    identifier = form_data.username # It can be the username or the email.
 
     if not identifier or not form_data.password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email/name and password are required"
+            detail="Email/Username and Password are required"
         )
 
     user_obj = await user_crud.authenticate_user(db, identifier, form_data.password)
     if not user_obj:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect Email/Username or password",
+            detail="Incorrect Email/Username or Password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

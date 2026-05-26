@@ -14,6 +14,6 @@ class Review(Base):
     body = Column(Text, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
     __table_args__ = (UniqueConstraint("user_id", "game_id", name="uq_user_game_review"),)

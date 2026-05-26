@@ -6,7 +6,7 @@ dist/
 build/
 
 # local env files
-.env
+.env*
 .env.local
 .env.development.local
 .env.test.local
@@ -20,11 +20,25 @@ pnpm-debug.log*
 
 # editor folders
 .vscode/
+vscode/
 .idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+
+# Python files
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+venv/
+.venv/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # OS files
 .DS_Store

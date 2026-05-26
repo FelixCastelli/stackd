@@ -12,17 +12,19 @@ popular_steam_games = []
 IGDB_GAMES_URL = "https://api.igdb.com/v4/games"
 IGDB_POPULARITY_URL = "https://api.igdb.com/v4/popularity_primitives"
 
-async def fetch_top_steam_games(limit: int = 60):
+async def fetch_newest_top_selling_steam_games(limit: int = 60):
     headers = {
         "Client-ID": settings.IGDB_CLIENT_ID,
         "Authorization": f"Bearer {settings.IGDB_ACCESS_TOKEN}",
     }
 
+    popularity_limit = limit * 2 # I bring more in case it brings DLCs, so that I have the space to remove those and add the remaining that aren Main Games or Expansions below.
+
     body = f"""
     fields game_id; 
-    where popularity_type = 3;
+    where popularity_type = 3 & external_popularity_source = 121;
     sort value desc;
-    limit {limit};
+    limit {popularity_limit};
     """
 
     async with httpx.AsyncClient(timeout=20.0) as client:
@@ -33,9 +35,10 @@ async def fetch_top_steam_games(limit: int = 60):
         if not popular_game_ids:
             return []
         
+        # Sort them by release date so the newest released games show up first.
         games_body = f"""
-            fields name, cover.url, rating, game_type, first_release_date;
-            where id = ({', '.join(map(str, popular_game_ids))});
+            fields name, cover.url, game_type, first_release_date;
+            where id = ({', '.join(map(str, popular_game_ids))}) & game_type = (0, 2) & age_ratings.rating_category != (40, 26);
             sort first_release_date desc;
             limit {limit};
         """
@@ -46,11 +49,11 @@ async def fetch_top_steam_games(limit: int = 60):
     
 @router.get("/")
 async def get_trending_steam_games(limit: int = 60):
-    games = await fetch_top_steam_games(limit)
+    games = await fetch_newest_top_selling_steam_games(limit)
     return games
 
 @router.get("/{game_id}")
-async def get_game_details(game_id: int):
+async def get_game_details(game_id: int, db: AsyncSession = Depends(get_db)):
     headers = {
         "Client-ID": settings.IGDB_CLIENT_ID,
         "Authorization": f"Bearer {settings.IGDB_ACCESS_TOKEN}",
@@ -83,7 +86,11 @@ async def get_game_details(game_id: int):
         if not data:
             return { "error": "Game not found" }
         
-        return data[0]
+        game_data = data[0]
+
+        await create_game_if_not_exists(db, game_id, game_data["name"])
+        
+        return game_data
 
 @router.post("/")
 async def ensure_game_exists(

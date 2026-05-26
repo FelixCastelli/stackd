@@ -1,6 +1,21 @@
 @import "tailwindcss";
 
 @layer base {
+  html,
+  body,
+  #root {
+    --back-text: #badefc;
+    --back-text-secondary: #8f9ca7;
+    --back-link: #cbd4dc;
+    --back-secondary: #242832;
+    --back-field: #30394c;
+    --back-accent: #00d58e;
+    --back-type-abandoned: #ea4747;
+
+    min-height: 100%;
+    background: #16181c;
+  }
+
   html, body {
     font-family: 'Roboto', sans-serif;
   }
