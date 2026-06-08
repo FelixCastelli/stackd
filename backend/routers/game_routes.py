@@ -1,105 +1,29 @@
 from fastapi import APIRouter, Depends
-import httpx
-from config import settings
-from schemas.game_schema import GameCreate
-from database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from crud.game_crud import create_game_if_not_exists, get_game_by_igdb_id
+
+from database import get_db
+from schemas.game_schema import GameResponse
+from services import game_services
 
 router = APIRouter(prefix="/games", tags=["games"])
-popular_steam_games = []
 
-IGDB_GAMES_URL = "https://api.igdb.com/v4/games"
-IGDB_POPULARITY_URL = "https://api.igdb.com/v4/popularity_primitives"
 
-async def fetch_newest_top_selling_steam_games(limit: int = 60):
-    headers = {
-        "Client-ID": settings.IGDB_CLIENT_ID,
-        "Authorization": f"Bearer {settings.IGDB_ACCESS_TOKEN}",
-    }
-
-    popularity_limit = limit * 2 # I bring more in case it brings DLCs, so that I have the space to remove those and add the remaining that aren Main Games or Expansions below.
-
-    body = f"""
-    fields game_id; 
-    where popularity_type = 3 & external_popularity_source = 121;
-    sort value desc;
-    limit {popularity_limit};
-    """
-
-    async with httpx.AsyncClient(timeout=20.0) as client:
-        popularity_resp = await client.post(IGDB_POPULARITY_URL, headers=headers, data=body)
-        popularity_resp.raise_for_status()
-        popular_game_ids = [game['game_id'] for game in popularity_resp.json()]
-        
-        if not popular_game_ids:
-            return []
-        
-        # Sort them by release date so the newest released games show up first.
-        games_body = f"""
-            fields name, cover.url, game_type, first_release_date;
-            where id = ({', '.join(map(str, popular_game_ids))}) & game_type = (0, 2) & age_ratings.rating_category != (40, 26);
-            sort first_release_date desc;
-            limit {limit};
-        """
-
-        games_resp = await client.post(IGDB_GAMES_URL, headers=headers, data=games_body)
-        games_resp.raise_for_status()
-        return games_resp.json()
-    
 @router.get("/")
-async def get_trending_steam_games(limit: int = 60):
-    games = await fetch_newest_top_selling_steam_games(limit)
+async def get_trending_steam_games():
+    games = await game_services.fetch_newest_top_selling_steam_games(60)
     return games
 
-@router.get("/{game_id}")
-async def get_game_details(game_id: int, db: AsyncSession = Depends(get_db)):
-    headers = {
-        "Client-ID": settings.IGDB_CLIENT_ID,
-        "Authorization": f"Bearer {settings.IGDB_ACCESS_TOKEN}",
-    }
 
-    body = f"""
-    fields name,
-    cover.url,
-    screenshots.url,
-    game_type.type,
-    first_release_date,
-    summary,
-    genres.name,
-    platforms.name,
-    involved_companies.company.name,
-    game_status.status,
-    dlcs,
-    expansions,
-    expanded_games,
-    franchises.games,
-    parent_game;
-    where id = {game_id};
-    """
+@router.get("/search")
+async def search_game_by_query(query: str):
+    return await game_services.search_igdb_games(query)
 
-    async with httpx.AsyncClient(timeout=20.0) as client:
-        game_resp = await client.post(IGDB_GAMES_URL, headers=headers, data=body)
-        game_resp.raise_for_status()
-        data = game_resp.json()
 
-        if not data:
-            return { "error": "Game not found" }
-        
-        game_data = data[0]
+@router.get("/{igdb_id}")
+async def fetch_game_details(igdb_id: int):
+    return await game_services.fetch_igdb_game_details(igdb_id)
 
-        await create_game_if_not_exists(db, game_id, game_data["name"])
-        
-        return game_data
 
-@router.post("/")
-async def ensure_game_exists(
-    payload: GameCreate,
-    db: AsyncSession = Depends(get_db)
-):
-    game = await create_game_if_not_exists(
-        db, 
-        payload.igdb_id,
-        payload.name
-        )
-    return game
+@router.put("/{igdb_id}", response_model=GameResponse)
+async def create_game(igdb_id: int, db: AsyncSession = Depends(get_db)):
+    return await game_services.create_game_from_igdb(db=db, igdb_id=igdb_id)

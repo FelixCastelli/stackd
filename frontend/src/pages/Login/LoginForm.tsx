@@ -19,7 +19,7 @@ export function LoginForm({
     <form onSubmit={onSubmit} className="login-form" aria-label="Login form">
       <input
         type="text"
-        placeholder="Email / Username"
+        placeholder="Email"
         value={identifier}
         onChange={(event) => onIdentifierChange(event.target.value)}
         required

@@ -1,17 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginRegisteredUser, registerUser } from "./registerApi";
+
+const ALERT_FADE_MS = 150;
 
 export function useRegisterForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isErrorAlertClosing, setIsErrorAlertClosing] = useState(false);
+  const dismissErrorTimerRef = useRef<number>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      if (dismissErrorTimerRef.current) {
+        window.clearTimeout(dismissErrorTimerRef.current);
+      }
+    };
+  }, []);
 
   async function submitRegistration(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (dismissErrorTimerRef.current) {
+      window.clearTimeout(dismissErrorTimerRef.current);
+    }
+
     setError("");
+    setIsErrorAlertClosing(false);
 
     try {
       const credentials = { email, username, password };
@@ -23,7 +40,17 @@ export function useRegisterForm() {
       navigate("/");
     } catch (err) {
       setError(getErrorMessage(err));
+      setIsErrorAlertClosing(false);
     }
+  }
+
+  function dismissErrorAlert() {
+    setIsErrorAlertClosing(true);
+
+    dismissErrorTimerRef.current = window.setTimeout(() => {
+      setError("");
+      setIsErrorAlertClosing(false);
+    }, ALERT_FADE_MS);
   }
 
   function goToLogin() {
@@ -38,7 +65,9 @@ export function useRegisterForm() {
     password,
     setPassword,
     error,
+    isErrorAlertClosing,
     submitRegistration,
+    dismissErrorAlert,
     goToLogin,
   };
 }

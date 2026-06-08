@@ -1,4 +1,4 @@
-import "./LogoutAlert.css";
+import "../../components/Alert.css";
 
 type LogoutAlertProps = {
   isClosing: boolean;

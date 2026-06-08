@@ -1,5 +1,5 @@
 import { Navbar } from "../../components/navbar/Navbar";
-import { LoginErrorAlert } from "./LoginErrorAlert";
+import { ErrorAlert } from "../../components/ErrorAlert";
 import { LoginForm } from "./LoginForm";
 import { LogoutAlert } from "./LogoutAlert";
 import { useDocumentTitle, useLoginForm, useLogoutAlert } from "./hooks";
@@ -37,7 +37,7 @@ export function Login() {
           <h2 className="login-title">Welcome back</h2>
 
           {error && (
-            <LoginErrorAlert
+            <ErrorAlert
               message={error}
               isClosing={isErrorAlertClosing}
               onDismiss={dismissErrorAlert}

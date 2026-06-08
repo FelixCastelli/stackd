@@ -1,18 +1,22 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from database import Base, async_engine
-from routers import user_routes, game_routes, review_routes
+from routers import game_routes, review_routes, user_routes
 
 origins = [
     "http://localhost:5173",
 ]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 

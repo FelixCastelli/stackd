@@ -1,12 +1,12 @@
-import "./LogoutAlert.css";
+import "./Alert.css";
 
-type LoginErrorAlertProps = {
+type ErrorAlertProps = {
   message: string;
   isClosing: boolean;
   onDismiss: () => void;
 };
 
-export function LoginErrorAlert({ message, isClosing, onDismiss }: LoginErrorAlertProps) {
+export function ErrorAlert({ message, isClosing, onDismiss }: ErrorAlertProps) {
   return (
     <div
       className={`alert alert-backloggd-error alert-dismissible fade mt-2 ${
@@ -21,7 +21,7 @@ export function LoginErrorAlert({ message, isClosing, onDismiss }: LoginErrorAle
         aria-label="Close"
         onClick={onDismiss}
       >
-        <span aria-hidden="true">×</span>
+        <span aria-hidden="true">&times;</span>
       </button>
     </div>
   );

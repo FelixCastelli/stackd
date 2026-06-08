@@ -1,4 +1,5 @@
 import { Navbar } from "../../components/navbar/Navbar";
+import { ErrorAlert } from "../../components/ErrorAlert";
 import { RegisterForm } from "./RegisterForm";
 import { useDocumentTitle, useRegisterForm } from "./hooks";
 
@@ -11,7 +12,9 @@ export function Register() {
     password,
     setPassword,
     error,
+    isErrorAlertClosing,
     submitRegistration,
+    dismissErrorAlert,
     goToLogin,
   } = useRegisterForm();
 
@@ -27,11 +30,18 @@ export function Register() {
             Registration
           </h1>
 
+          {error && (
+            <ErrorAlert
+              message={error}
+              isClosing={isErrorAlertClosing}
+              onDismiss={dismissErrorAlert}
+            />
+          )}
+
           <RegisterForm
             username={username}
             email={email}
             password={password}
-            error={error}
             onUsernameChange={setUsername}
             onEmailChange={setEmail}
             onPasswordChange={setPassword}

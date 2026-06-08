@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { isLoggedIn, logout } from "../../auth";
+import { isLoggedIn, logOut } from "../../auth";
+import { NavbarSearch } from "./NavbarSearch";
 
 const LIBRARY_PATH = "/games/lib/trending";
 const LOGIN_PATH = "/login";
@@ -17,7 +18,7 @@ export function NavbarLinks({ children }: NavbarLinksProps) {
   const isRegisterPage = location.pathname === REGISTER_PATH;
 
   function handleLogout() {
-    logout();
+    logOut();
     navigate(LOGIN_PATH, {
       state: {
         loggedOut: true,
@@ -42,6 +43,8 @@ export function NavbarLinks({ children }: NavbarLinksProps) {
           <Link to={LIBRARY_PATH} className="navbar-link">
             Games
           </Link>
+
+          <NavbarSearch />
         </>
       ) : (
         <>
@@ -60,6 +63,8 @@ export function NavbarLinks({ children }: NavbarLinksProps) {
           <Link to={LIBRARY_PATH} className="navbar-link">
             Games
           </Link>
+
+          <NavbarSearch />
         </>
       )}
     </div>

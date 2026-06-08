@@ -6,6 +6,6 @@ export function getToken(): string | null {
     return localStorage.getItem("token");
 }
 
-export function logout(): void {
+export function logOut(): void {
     localStorage.removeItem("token");
 }

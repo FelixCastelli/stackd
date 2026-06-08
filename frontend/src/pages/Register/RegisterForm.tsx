@@ -2,7 +2,6 @@ type RegisterFormProps = {
   username: string;
   email: string;
   password: string;
-  error: string;
   onUsernameChange: (username: string) => void;
   onEmailChange: (email: string) => void;
   onPasswordChange: (password: string) => void;
@@ -14,7 +13,6 @@ export function RegisterForm({
   username,
   email,
   password,
-  error,
   onUsernameChange,
   onEmailChange,
   onPasswordChange,
@@ -23,8 +21,6 @@ export function RegisterForm({
 }: RegisterFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4" aria-label="Registration form">
-      {error && <div className="text-center text-sm text-red-400 mb-2">{error}</div>}
-
       <input
         type="email"
         placeholder="Email address"

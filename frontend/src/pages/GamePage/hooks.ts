@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchBackend } from "../../utils/api";
+import { ensureGameExists, fetchGameDetails } from "./gameApi";
 import type { Game } from "./types";
 
 const MAX_CACHED_GAME_QUERIES = 3;
@@ -15,7 +15,10 @@ export function useGame(igdbId?: string) {
         throw new Error("Missing game id.");
       }
 
-      return (await fetchBackend(`games/${igdbId}`)) as Game;
+      const game = await fetchGameDetails(igdbId);
+      await ensureGameExists(igdbId);
+
+      return game;
     },
     enabled: !!igdbId,
   });

@@ -33,7 +33,7 @@ export function GamePage() {
 
       {isError && <GameLoadError />}
 
-      {isLoggedIn() && (
+      {isLoggedIn() && game && (
         <GameReviewBox
           review={review}
           onReviewChange={setReview}

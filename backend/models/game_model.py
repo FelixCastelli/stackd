@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, Float, String
+from sqlalchemy import Column, Float, Integer, String
+
 from database import Base
+
 
 class Game(Base):
     __tablename__ = "games"

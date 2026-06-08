@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 import models.review_model as review_model
 from schemas.review_schema import ReviewCreate
 
